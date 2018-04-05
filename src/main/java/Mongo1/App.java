@@ -1,83 +1,36 @@
 package Mongo1;
 
-import com.mongodb.*;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.ChartUtilities;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.category.DefaultCategoryDataset;
+import Mongo1.Charts.BarChart;
+import Mongo1.Model.Database;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+public class App {
+    private static final String DATABASE_NAME = "test";
+    private static final String DAtABASE_COLLECTION_NAME = "restaurants";
+    private static final String FIELD_CUISINE_NAME = "cuisine";
+    private static final String FIELD_BOROUGH_NAME = "borough";
+    private static final String FIELD_GRADE_SCORE_NAME = "grades.score";
 
-/**
- * Hello world!
- *
- */
-public class App 
-{
-    public static void main( String[] args )
-    {
-        MongoClient mongo = new MongoClient();
-        DB db = mongo.getDB("test");
-        DBCollection dbCollection = db.getCollection("restaurants");
+    public static void main(String[] args) {
+        Database database = new Database(DATABASE_NAME, DAtABASE_COLLECTION_NAME);
 
-        //Cuisines names
-        Object[] cuisines = dbCollection.distinct("cuisine").toArray();
-        //Cuisines counter
-        int[] counter = new int [cuisines.length];
-
-        for(int i=0; i<cuisines.length; i++){
-            DBObject query = new BasicDBObject("cuisine", cuisines[i]);
-            counter[i] = dbCollection.find(query).count();
-        }
-
-        BarChart barChart = new BarChart(cuisines,counter);
+        BarChart barChart = new BarChart(database.getPossibleFieldNames(FIELD_CUISINE_NAME),
+                database.getFieldsCount(FIELD_CUISINE_NAME,
+                        database.getPossibleFieldNames(FIELD_CUISINE_NAME)));
         barChart.createBarChart("Cuisine counter",
-                "Restaurants number", "Cuisine name");
+                "Restaurants number", "Cuisine name",
+                "CuisinesCounter.jpeg");
 
+        barChart = new BarChart(database.getPossibleFieldNames(FIELD_BOROUGH_NAME),
+                database.getFieldsCount(FIELD_BOROUGH_NAME,
+                        database.getPossibleFieldNames(FIELD_BOROUGH_NAME)));
+        barChart.createBarChart("Borough ocunter",
+                "Restaurants number", "Borough name",
+                "BoroughCounter.jpeg");
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        /*DBObject restau1 = new BasicDBObject("_id", "1234")
-                .append("borough", "Warszawa")
-                .append("cuisine", "Polska")
-                .append("name", "Testowa")
-                .append("restaurant_id", "66666666");
-
-        //dbCollection.insert(restau1);
-        System.out.println(dbCollection.getCount());
-
-        DBObject query = new BasicDBObject("_id", "1234");
-        DBCursor dbCursor = dbCollection.find(query);
-        DBObject test = dbCursor.one();
-
-        System.out.println(test);
-        System.out.println(test.get("name"));*/
+        database.getAllRestarantsNumber();
+        database.getFieldCounterGreaterThanValue(FIELD_GRADE_SCORE_NAME, 130);
+        database.getFieldCounterLessThanValue(FIELD_GRADE_SCORE_NAME, 5);
+        database.getHighestValueFromNumericField(FIELD_GRADE_SCORE_NAME);
+        database.getLowestValueFromNumericField(FIELD_GRADE_SCORE_NAME);
     }
 }
