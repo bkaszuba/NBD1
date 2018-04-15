@@ -36,6 +36,15 @@ public class Database {
         return fieldsCounter;
     }
 
+    public List<Long> getFieldsCountWhereFieldEquals(String fieldName, DistinctIterable searchingFieldNames, String fieldToEqual, String valueToEqual) {
+        List<Long> fieldsCounter = new ArrayList<>();
+        MongoCursor<String> cursor = searchingFieldNames.iterator();
+        while(cursor.hasNext()) {
+            fieldsCounter.add(collection.count(and(eq(fieldName, cursor.next()),eq(fieldToEqual, valueToEqual))));
+        }
+        return fieldsCounter;
+    }
+
     public void getFieldCounterGreaterThanValue(String field, int value) {
         long result = collection.count(and(gte(field, value)));
         System.out.println("Restaurants with " + field
